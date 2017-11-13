@@ -37,7 +37,7 @@ unzip ngrok-stable-linux-arm.zip
 ./ngrok tcp 10679 
 ```
 最终效果图如下。
-![respberry-ss-ngrok-running](https://image.6-79.cn/respberry-ss-ngrok-running.png)
+![](https://image.6-79.cn/respberry-ss-ngrok-running.png)
 
 ### DNS解析
 
