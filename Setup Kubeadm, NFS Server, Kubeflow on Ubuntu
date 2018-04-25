@@ -1,0 +1,107 @@
+# Setup Kubeadm on Ubuntu 16.04
+
+- connect to internet
+
+```
+MAC_IP=10.155.156.120
+curl -O $MAC_IP:8000/wpa.deb
+curl -O $MAC_IP:8000/wired_auth.sh
+curl -O $MAC_IP:8000/libpcsclite.deb
+curl -O $MAC_IP:8000/wpa_supplicant.conf
+mv wpa_supplicant.conf /etc/
+dpkg -i libpcsclite.deb
+dpkg -i wpa.deb
+sh ./wired_auth.sh
+```
+
+- disable swap `swapoff -a`
+- install docker
+
+```
+apt-get update
+apt-get install -y docker.io
+```
+
+- install kubeadm, kubelet, kubectl
+
+```
+apt-get update && apt-get install -y apt-transport-https curl
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
+deb http://apt.kubernetes.io/ kubernetes-xenial main
+EOF
+apt-get update
+apt-get install -y kubelet kubeadm kubectl
+```
+
+- config cgroup driver
+
+```
+sed -i "s/cgroup-driver=systemd/cgroup-driver=cgroupfs/g" /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+```
+
+- initialize master `kubeadm init`
+
+- make normal user
+
+```
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+```
+
+- install a pod network
+
+```
+kubectl apply -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/kubeadm/1.7/calico.yaml
+```
+
+# Setup NFS on Ubuntu 16.04
+
+- install server
+
+```
+sudo apt-get update
+sudo apt-get install nfs-kernel-server
+```
+
+- make exporting
+
+```
+sudo mkdir /var/nfs/general -p
+ls -la /var/nfs/general
+sudo chown nobody:nogroup /var/nfs/general
+```
+
+- config
+
+```
+sudo nano /etc/exports
+
+/var/nfs/general *(rw,sync,no_subtree_check)
+```
+
+- restart server `sudo systemctl restart nfs-kernel-server`
+
+- for client 
+
+```
+sudo mkdir -p /nfs/general
+sudo mount 10.157.159.75:/var/nfs/general /nfs/general
+```
+
+# Setup my Kubflow on Ubuntu 16.04
+
+- install ksonnet 0.9.2
+- install packages
+
+```
+ks init my-kubeflow
+cd my-kubeflow
+
+VERSION=model-nfs
+ks registry add kubeflow github.com/lqj679ssn/kubeflow/tree/${VERSION}/kubeflow
+ks pkg install kubeflow/core@${VERSION}
+ks pkg install kubeflow/tf-serving@${VERSION}
+ks pkg install kubeflow/tf-job@${VERSION}
+```
