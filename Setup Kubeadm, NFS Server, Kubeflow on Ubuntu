@@ -56,6 +56,13 @@ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 kubectl apply -f https://docs.projectcalico.org/v3.0/getting-started/kubernetes/installation/hosted/kubeadm/1.7/calico.yaml
 ```
 
+- untaint
+
+```
+kubectl taint nodes NODENAME node-role.kubernetes.io/master:NoSchedule-
+```
+
+
 # Setup NFS on Ubuntu 16.04
 
 - install server
