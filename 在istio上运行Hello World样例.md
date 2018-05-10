@@ -62,6 +62,10 @@ istioctl kube-inject -f helloworld.yaml -o helloworld-istio.yaml
 kubectl create -f helloworld-istio.yaml -n helloworld
 ```
 
+```
+istioctl kube-inject -f disk.yaml --includeIPRanges=10.0.0.1/24 -o disk-istio.yaml
+```
+
 ### auto injection
 ```
 kubectl label namespace helloworld istio-injection=enabled
